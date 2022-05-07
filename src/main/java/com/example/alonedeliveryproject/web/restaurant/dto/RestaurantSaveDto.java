@@ -25,6 +25,20 @@ public class RestaurantSaveDto {
     @Max(value = 10000, message = "최대 배달비 금액은 10,000원 입니다.")
     private int deliveryFee;
 
+    public boolean checkMinOrderPriceHundredUnit() {
+      if (this.minOrderPrice % 100 == 0) {
+        return false;
+      }
+      return true;
+    }
+
+    public boolean checkDeliveryFeeFiveHundredUnit() {
+      if (this.deliveryFee % 500 == 0) {
+        return false;
+      }
+      return true;
+    }
+
     public Restaurant toEntity() {
       return Restaurant.builder()
           .name(this.name)
