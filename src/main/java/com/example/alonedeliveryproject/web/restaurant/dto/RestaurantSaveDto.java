@@ -1,6 +1,8 @@
 package com.example.alonedeliveryproject.web.restaurant.dto;
 
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +16,13 @@ public class RestaurantSaveDto {
   @Builder
   public static class Request {
     private String name;
+
+    @Min(value = 1000, message = "최소 주문 금액은 1,000원 입니다.")
+    @Max(value = 100000, message = "최대 주문 금액은 100,000원 입니다.")
     private int minOrderPrice;
+
+    @Min(value = 0, message = "최소 배달비 금액은 0원 입니다.")
+    @Max(value = 10000, message = "최대 배달비 금액은 10,000원 입니다.")
     private int deliveryFee;
 
     public Restaurant toEntity() {
@@ -23,34 +31,6 @@ public class RestaurantSaveDto {
           .minOrderPrice(this.minOrderPrice)
           .deliveryFee(this.deliveryFee)
           .build();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      Request request = (Request) o;
-
-      if (minOrderPrice != request.minOrderPrice) {
-        return false;
-      }
-      if (deliveryFee != request.deliveryFee) {
-        return false;
-      }
-      return name != null ? name.equals(request.name) : request.name == null;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = name != null ? name.hashCode() : 0;
-      result = 31 * result + minOrderPrice;
-      result = 31 * result + deliveryFee;
-      return result;
     }
   }
 }
