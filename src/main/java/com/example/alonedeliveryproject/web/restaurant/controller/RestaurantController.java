@@ -1,6 +1,6 @@
 package com.example.alonedeliveryproject.web.restaurant.controller;
 
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantSaveDto;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto;
 import com.example.alonedeliveryproject.web.restaurant.exception.RestaurantException;
 import com.example.alonedeliveryproject.web.restaurant.service.RestaurantService;
 import java.util.Objects;
@@ -18,7 +18,7 @@ public class RestaurantController {
   private final RestaurantService restaurantService;
 
   @PostMapping("/restaurant/register")
-  public Object save(@RequestBody @Validated RestaurantSaveDto.Request request, BindingResult bindingResult) {
+  public Object save(@RequestBody @Validated RestaurantDto.Request request, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
       throw new RestaurantException(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
     }

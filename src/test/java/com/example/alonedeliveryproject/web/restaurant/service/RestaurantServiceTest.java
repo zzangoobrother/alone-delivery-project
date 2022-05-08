@@ -10,9 +10,12 @@ import static org.mockito.Mockito.verify;
 
 import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantSaveDto;
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantSaveDto.Request;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Request;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Response;
 import com.example.alonedeliveryproject.web.restaurant.exception.RestaurantException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +35,9 @@ class RestaurantServiceTest {
 
   private Restaurant restaurant;
 
-  private RestaurantSaveDto.Request restaurantSaveRequestDto;
+  private List<Restaurant> restaurants = new ArrayList<>();
+
+  private RestaurantDto.Request restaurantRequestDto;
 
   @BeforeEach
   void setup() {
@@ -42,7 +47,14 @@ class RestaurantServiceTest {
         .deliveryFee(10_000)
         .build();
 
-    restaurantSaveRequestDto = RestaurantSaveDto.Request.builder()
+    restaurants.add(restaurant);
+    restaurants.add(Restaurant.builder()
+        .name("쉑쉑 청담점")
+        .minOrderPrice(50_000)
+        .deliveryFee(5_000)
+        .build());
+
+    restaurantRequestDto = RestaurantDto.Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(100_000)
         .deliveryFee(10_000)
@@ -54,14 +66,14 @@ class RestaurantServiceTest {
     ArgumentCaptor<Restaurant> captor = ArgumentCaptor.forClass(Restaurant.class);
     given(restaurantRepository.save(any())).willReturn(restaurant);
 
-    restaurantService.restaurantSave(restaurantSaveRequestDto);
+    restaurantService.restaurantSave(restaurantRequestDto);
 
     verify(restaurantRepository, times(1)).save(captor.capture());
 
     Restaurant saveRestaurant = captor.getValue();
 
-    assertThat(restaurantSaveRequestDto.getName()).isEqualTo(saveRestaurant.getName());
-    assertThat(restaurantSaveRequestDto.getMinOrderPrice()).isEqualTo(saveRestaurant.getMinOrderPrice());
+    assertThat(restaurantRequestDto.getName()).isEqualTo(saveRestaurant.getName());
+    assertThat(restaurantRequestDto.getMinOrderPrice()).isEqualTo(saveRestaurant.getMinOrderPrice());
   }
 
   @Test
@@ -88,5 +100,17 @@ class RestaurantServiceTest {
     });
 
     assertEquals("배달비는 500원 단위로 입력가능 합니다.", restaurantException.getMessage());
+  }
+
+  @Test
+  void 음식점_조회() {
+    given(restaurantRepository.findAll()).willReturn(restaurants);
+
+    List<Response> responseDtoRestaurants = restaurantService.getRestaurants();
+
+    for (int i = 0; i < responseDtoRestaurants.size(); i++) {
+      assertThat(responseDtoRestaurants.get(i).getName()).isEqualTo(restaurants.get(i).getName());
+      assertThat(responseDtoRestaurants.get(i).getMinOrderPrice()).isEqualTo(restaurants.get(i).getMinOrderPrice());
+    }
   }
 }

@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-public class RestaurantSaveDto {
+public class RestaurantDto {
 
   @Getter
   @AllArgsConstructor
@@ -46,5 +46,17 @@ public class RestaurantSaveDto {
           .deliveryFee(this.deliveryFee)
           .build();
     }
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  public static class Response {
+    private String name;
+
+    private int minOrderPrice;
+
+    private int deliveryFee;
   }
 }

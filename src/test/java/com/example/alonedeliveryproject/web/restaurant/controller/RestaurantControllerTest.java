@@ -7,8 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantSaveDto;
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantSaveDto.Request;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Request;
 import com.example.alonedeliveryproject.web.restaurant.service.RestaurantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class RestaurantControllerTest {
                 .deliveryFee(0)
                 .build());
 
-    RestaurantSaveDto.Request request = Request.builder()
+    RestaurantDto.Request request = Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(1_000)
         .deliveryFee(0)
@@ -53,7 +53,7 @@ class RestaurantControllerTest {
 
   @Test
   void 최소주문_가격_1000원_미만_에러() throws Exception {
-    RestaurantSaveDto.Request request = Request.builder()
+    RestaurantDto.Request request = Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(500)
         .deliveryFee(10_000)
@@ -71,7 +71,7 @@ class RestaurantControllerTest {
 
   @Test
   void 초과주문_가격_100000원_초과_에러() throws Exception {
-    RestaurantSaveDto.Request request = Request.builder()
+    RestaurantDto.Request request = Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(100100)
         .deliveryFee(1000)
@@ -89,7 +89,7 @@ class RestaurantControllerTest {
 
   @Test
   void 배달비_0원_미만_에러() throws Exception {
-    RestaurantSaveDto.Request request = Request.builder()
+    RestaurantDto.Request request = Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(5000)
         .deliveryFee(-500)
@@ -107,7 +107,7 @@ class RestaurantControllerTest {
 
   @Test
   void 배달비_10000원_초과_에러() throws Exception {
-    RestaurantSaveDto.Request request = Request.builder()
+    RestaurantDto.Request request = Request.builder()
         .name("쉑쉑 강남점")
         .minOrderPrice(5000)
         .deliveryFee(10100)
