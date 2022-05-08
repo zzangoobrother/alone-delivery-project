@@ -4,13 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto;
 import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Request;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Response;
 import com.example.alonedeliveryproject.web.restaurant.service.RestaurantService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -121,5 +124,18 @@ class RestaurantControllerTest {
     MvcResult mvcResult = resultActions.andReturn();
 
     assertThat(mvcResult.getResolvedException().getMessage()).isEqualTo("최대 배달비 금액은 10,000원 입니다.");
+  }
+
+  @Test
+  void 음식점_전체_조회() throws Exception {
+    given(restaurantService.getRestaurants())
+        .willReturn(Arrays.asList(Response.builder()
+                        .name("쉑쉑 강남점")
+                        .minOrderPrice(100_000)
+                        .deliveryFee(10_000)
+                        .build()));
+
+    mvc.perform(get("/restaurants"))
+        .andExpect(status().isOk());
   }
 }
