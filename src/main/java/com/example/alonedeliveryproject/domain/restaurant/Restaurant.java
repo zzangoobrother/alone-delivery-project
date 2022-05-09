@@ -19,6 +19,7 @@ public class Restaurant {
   @Column(name = "restaurant_id")
   private Long id;
 
+  @Column(unique = true)
   private String name;
 
   @Column(name = "min_order_price")
