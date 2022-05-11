@@ -3,7 +3,6 @@ package com.example.alonedeliveryproject.web.restaurant.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,7 +63,6 @@ class RestaurantServiceTest {
   @Test
   void 음식점_등록() {
     ArgumentCaptor<Restaurant> captor = ArgumentCaptor.forClass(Restaurant.class);
-    given(restaurantRepository.save(any())).willReturn(restaurant);
 
     restaurantService.restaurantSave(restaurantRequestDto);
 

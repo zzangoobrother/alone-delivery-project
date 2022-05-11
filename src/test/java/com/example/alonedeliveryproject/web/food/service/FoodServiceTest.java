@@ -1,9 +1,9 @@
 package com.example.alonedeliveryproject.web.food.service;
 
-import static com.example.alonedeliveryproject.web.food.dto.FoodDto.*;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -13,8 +13,8 @@ import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
-import com.example.alonedeliveryproject.web.food.dto.FoodDto;
 import com.example.alonedeliveryproject.web.food.dto.FoodDto.Request;
+import com.example.alonedeliveryproject.web.food.exception.FoodException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +81,6 @@ class FoodServiceTest {
   void 음식_1개_등록_정상() {
     ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
     given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
-    given(foodRepository.save(any())).willReturn(food);
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
@@ -100,7 +99,6 @@ class FoodServiceTest {
   void 음식_2개_등록_정상() {
     ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
     given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
-    given(foodRepository.save(any())).willReturn(food);
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
@@ -122,7 +120,6 @@ class FoodServiceTest {
   void 음식_3개_등록_정상() {
     ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
     given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
-    given(foodRepository.save(any())).willReturn(food);
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
@@ -139,5 +136,19 @@ class FoodServiceTest {
       assertThat(foodsRequest.get(i).getName()).isEqualTo(saveFoods.get(i).getName());
       assertThat(foodsRequest.get(i).getPrice()).isEqualTo(saveFoods.get(i).getPrice());
     }
+  }
+
+  @Test
+  void 음식가격_100원_단위_입력_에러() {
+    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+
+    List<Request> foodsRequest = new ArrayList<>();
+    foodsRequest.add(Request.builder().name("쉑 버거").price(770).build());
+
+    FoodException foodException = assertThrows(FoodException.class, () -> {
+      foodService.save(foodsRequest, 1L);
+    });
+
+    assertEquals("음식 가격은 100원 단위로 입력가능 합니다.", foodException.getMessage());
   }
 }

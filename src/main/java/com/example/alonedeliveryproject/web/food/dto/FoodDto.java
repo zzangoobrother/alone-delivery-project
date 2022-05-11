@@ -23,5 +23,12 @@ public class FoodDto {
           .price(this.price)
           .build();
     }
+
+    public boolean checkFoodPriceHundredUnit() {
+      if (this.price % 100 == 0) {
+        return false;
+      }
+      return true;
+    }
   }
 }
