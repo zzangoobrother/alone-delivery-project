@@ -14,6 +14,7 @@ import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.food.dto.FoodDto.Request;
+import com.example.alonedeliveryproject.web.food.dto.FoodSaveDtos;
 import com.example.alonedeliveryproject.web.food.exception.FoodException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +46,6 @@ class FoodServiceTest {
 
   private Request foodDtoRequest3;
 
-  private Food food;
-
   @BeforeEach
   void setup() {
     restaurant = Restaurant.builder()
@@ -69,12 +68,6 @@ class FoodServiceTest {
         .name("쉑 비프 버거")
         .price(11900)
         .build();
-
-    food = Food.builder()
-        .name("쉑버거 더블")
-        .price(10900)
-        .restaurant(restaurant)
-        .build();
   }
 
   @Test
@@ -85,7 +78,7 @@ class FoodServiceTest {
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
 
-    foodService.save(foodsRequest, 1L);
+    foodService.save(1L, new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(1)).save(captor.capture());
 
@@ -104,7 +97,7 @@ class FoodServiceTest {
     foodsRequest.add(foodDtoRequest);
     foodsRequest.add(foodDtoRequest2);
 
-    foodService.save(foodsRequest, 1L);
+    foodService.save(1L, new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(2)).save(captor.capture());
 
@@ -126,7 +119,7 @@ class FoodServiceTest {
     foodsRequest.add(foodDtoRequest2);
     foodsRequest.add(foodDtoRequest3);
 
-    foodService.save(foodsRequest, 1L);
+    foodService.save(1L, new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(3)).save(captor.capture());
 
@@ -146,7 +139,7 @@ class FoodServiceTest {
     foodsRequest.add(Request.builder().name("쉑 버거").price(770).build());
 
     FoodException foodException = assertThrows(FoodException.class, () -> {
-      foodService.save(foodsRequest, 1L);
+      foodService.save(1L, new FoodSaveDtos(foodsRequest));
     });
 
     assertEquals("음식 가격은 100원 단위로 입력가능 합니다.", foodException.getMessage());

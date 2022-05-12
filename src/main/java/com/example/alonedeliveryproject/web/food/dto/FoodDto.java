@@ -1,6 +1,8 @@
 package com.example.alonedeliveryproject.web.food.dto;
 
 import com.example.alonedeliveryproject.domain.food.Food;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +17,8 @@ public class FoodDto {
   public static class Request {
     private String name;
 
+    @Min(value = 100, message = "최소 음식 가격은 100원 입니다.")
+    @Max(value = 1000000, message = "최대 음식 가격은 1,000,000원 입니다.")
     private int price;
 
     public Food toEntity() {

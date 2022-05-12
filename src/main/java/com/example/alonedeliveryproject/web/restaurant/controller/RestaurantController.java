@@ -22,7 +22,7 @@ public class RestaurantController {
   private final RestaurantService restaurantService;
 
   @PostMapping("/restaurant/register")
-  public Object save(@RequestBody @Validated RestaurantDto.Request request, BindingResult bindingResult) {
+  public Long save(@RequestBody @Validated RestaurantDto.Request request, BindingResult bindingResult) {
     if (bindingResult.hasErrors()) {
       throw new RestaurantException(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
     }
