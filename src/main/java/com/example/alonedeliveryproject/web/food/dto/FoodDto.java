@@ -35,4 +35,16 @@ public class FoodDto {
       return true;
     }
   }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Response {
+
+    private long id;
+
+    private String name;
+
+    private int price;
+  }
 }

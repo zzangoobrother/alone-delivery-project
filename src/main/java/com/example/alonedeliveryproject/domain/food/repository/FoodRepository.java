@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FoodRepository extends JpaRepository<Food, Long> {
 
   List<Food> findByRestaurantAndNameIn(Restaurant restaurant, List<String> names);
+
+  List<Food> findByRestaurant(Restaurant restaurant);
 }
