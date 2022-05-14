@@ -1,13 +1,16 @@
 package com.example.alonedeliveryproject.web.food.controller;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.alonedeliveryproject.web.food.dto.FoodDto.Request;
+import com.example.alonedeliveryproject.web.food.dto.FoodDto.Response;
 import com.example.alonedeliveryproject.web.food.dto.FoodSaveDtos;
 import com.example.alonedeliveryproject.web.food.service.FoodService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,12 +38,18 @@ class FoodControllerTest {
 
   private Request foodDtoRequest;
 
+  private List<Response> foodsResult = new ArrayList<>();
+
   @BeforeEach
   void setup() {
     foodDtoRequest = Request.builder()
         .name("쉑버거 더블")
         .price(10900)
         .build();
+
+    foodsResult.add(new Response(1L, "쉑버거 더블", 10900));
+    foodsResult.add(new Response(2L, "쉑 치킨 버거", 9900));
+    foodsResult.add(new Response(3L, "쉑 비프 버거", 11900));
   }
 
   @Test
@@ -100,5 +109,14 @@ class FoodControllerTest {
     MvcResult mvcResult = resultActions.andReturn();
 
     assertThat(mvcResult.getResolvedException().getMessage()).isEqualTo("최대 음식 가격은 1,000,000원 입니다.");
+  }
+
+  @Test
+  void 음식점에_등록된_음식_전체_조회() throws Exception {
+    given(foodService.getFoods(anyLong()))
+        .willReturn(foodsResult);
+
+    mvc.perform(get("/restaurant/" + 1 + "/food"))
+        .andExpect(status().isOk());
   }
 }
