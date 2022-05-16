@@ -6,6 +6,7 @@ import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
 import com.example.alonedeliveryproject.domain.order.Order;
 import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
+import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoRequest;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoResponse;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoResponse.FoodResponse;
@@ -55,10 +56,18 @@ public class OrderService {
       totalPrice += findFood.getPrice() * orderFood.getQuantity();
     }
 
+    Restaurant restaurant = findFoods.get(0).getRestaurant();
+
+    totalPrice += restaurant.getDeliveryFee();
+
+    if (totalPrice < restaurant.getMinOrderPrice()) {
+      throw new OrderException("해당 음식점의 최소 주문 금액은 " + restaurant.getMinOrderPrice() + "원 입니다.");
+    }
+
     return OrderDtoResponse.builder()
-        .restaurantName(findFoods.get(0).getRestaurant().getName())
+        .restaurantName(restaurant.getName())
         .foods(foods)
-        .deliveryFee(findFoods.get(0).getRestaurant().getDeliveryFee())
+        .deliveryFee(restaurant.getDeliveryFee())
         .totalPrice(totalPrice)
         .build();
   }
