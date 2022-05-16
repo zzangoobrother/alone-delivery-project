@@ -1,6 +1,5 @@
 package com.example.alonedeliveryproject.web.food.controller;
 
-import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

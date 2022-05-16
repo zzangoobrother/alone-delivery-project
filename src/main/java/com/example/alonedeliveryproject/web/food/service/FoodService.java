@@ -28,13 +28,13 @@ public class FoodService {
         () -> new FoodException("음식점을 찾을 수 없습니다.")
     );
 
-    List<String> names = foodsRequest.getRequests().stream().map(Request::getName).collect(toList());
+    List<String> names = foodsRequest.getFoodSaveDtos().stream().map(Request::getName).collect(toList());
 
     if (!foodRepository.findByRestaurantAndNameIn(restaurant, names).isEmpty()) {
       throw new FoodException("같은 음식점 내에서 중복된 음식을 등록할 수 없습니다.");
     }
 
-    for (Request foodRequest : foodsRequest.getRequests()) {
+    for (Request foodRequest : foodsRequest.getFoodSaveDtos()) {
       if (foodRequest.checkFoodPriceHundredUnit()) {
         throw new FoodException("음식 가격은 100원 단위로 입력가능 합니다.");
       }

@@ -1,0 +1,92 @@
+package com.example.alonedeliveryproject.web.order.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
+import com.example.alonedeliveryproject.domain.food.Food;
+import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
+import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
+import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
+import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
+import com.example.alonedeliveryproject.web.order.dto.OrderDtoRequest;
+import com.example.alonedeliveryproject.web.order.dto.OrderDtoResponse;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class OrderServiceTest {
+
+  @Mock
+  private OrderRepository orderRepository;
+
+  @Mock
+  private FoodRepository foodRepository;
+
+  @Mock
+  private RestaurantRepository restaurantRepository;
+
+  @InjectMocks
+  private OrderService orderService;
+
+  private Restaurant restaurant;
+
+  private Food food;
+
+  private Food food2;
+
+  private Food food3;
+
+  private List<OrderDtoRequest> orderDtos = new ArrayList<>();
+
+  private List<Food> foods = new ArrayList<>();
+
+  @BeforeEach
+  void setup() {
+    restaurant = new Restaurant(1L, "쉑쉑 강남점", 100_000, 10_000);
+
+    food = new Food(1L, "쉑버거 더블", 10900, restaurant);
+    food2 = new Food(2L, "쉑 치킨 버거", 9900, restaurant);
+    food3 = new Food(3L, "쉑 비프 버거", 11900, restaurant);
+
+    foods.add(food);
+    foods.add(food2);
+    foods.add(food3);
+
+    orderDtos.add(new OrderDtoRequest(food.getId(), 1));
+    orderDtos.add(new OrderDtoRequest(food2.getId(), 2));
+    orderDtos.add(new OrderDtoRequest(food3.getId(), 3));
+  }
+
+  @Test
+  void 주문하기_정상() {
+    given(foodRepository.findAllById(any())).willReturn(foods);
+
+    OrderDtoResponse result = orderService.save(1L, orderDtos);
+    assertThat(restaurant.getName()).isEqualTo(result.getRestaurantName());
+
+    assertThat(food.getName()).isEqualTo(result.getFoods().get(0).getName());
+    assertThat(food.getPrice()).isEqualTo(result.getFoods().get(0).getPrice());
+
+    assertThat(food2.getName()).isEqualTo(result.getFoods().get(1).getName());
+    assertThat(food2.getPrice()).isEqualTo(result.getFoods().get(1).getPrice());
+
+    assertThat(food3.getName()).isEqualTo(result.getFoods().get(2).getName());
+    assertThat(food3.getPrice()).isEqualTo(result.getFoods().get(2).getPrice());
+
+    assertThat(result.getDeliveryFee()).isEqualTo(restaurant.getDeliveryFee());
+
+    int totalPrice = result.getFoods().get(0).getPrice() * orderDtos.get(0).getQuantity()
+        + result.getFoods().get(1).getPrice() * orderDtos.get(1).getQuantity()
+        + result.getFoods().get(2).getPrice() * orderDtos.get(2).getQuantity();
+    assertThat(result.getTotalPrice()).isEqualTo(totalPrice);
+  }
+
+
+}

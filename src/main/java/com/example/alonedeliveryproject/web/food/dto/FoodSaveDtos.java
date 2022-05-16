@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FoodSaveDtos {
 
-  @NotNull
   @Valid
-  private List<Request> requests;
+  @NotNull
+  private List<Request> foodSaveDtos;
 
 
 }
