@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
 import com.example.alonedeliveryproject.domain.order.Order;
+import com.example.alonedeliveryproject.domain.order.OrderFood;
 import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoRequest;
@@ -32,20 +33,22 @@ public class OrderService {
     List<Long> foodIds = orderFoods.stream().map(OrderDtoRequest::getId).collect(toList());
     List<Food> findFoods = foodRepository.findAllById(foodIds);
 
+    Order order = orderFoods.get(0).toEntityOrder();
+    orderRepository.save(order);
+
     for (Food findFood : findFoods) {
       if (!findFood.getRestaurant().getId().equals(restaurantId)) {
         throw new OrderException("해당 음식점에서 음식을 찾을 수 없습니다.");
       }
-      OrderDtoRequest orderFood = null;
+      OrderDtoRequest orderDtoRequest = null;
       for (int i = 0; i < orderFoods.size(); i++) {
-        orderFood = orderFoods.get(i);
-        if (orderFood.getId() == findFood.getId()) {
+        orderDtoRequest = orderFoods.get(i);
+        if (orderDtoRequest.getId() == findFood.getId()) {
           break;
         }
       }
 
-      Order order = orderFood.toEntity(findFood);
-      orderRepository.save(order);
+      OrderFood orderFood = orderDtoRequest.toEntityOrderFood(order, findFood);
 
       foods.add(FoodResponse.builder()
                 .name(findFood.getName())

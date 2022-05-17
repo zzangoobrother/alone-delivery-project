@@ -2,6 +2,7 @@ package com.example.alonedeliveryproject.web.order.dto;
 
 import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.order.Order;
+import com.example.alonedeliveryproject.domain.order.OrderFood;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +17,14 @@ public class OrderDtoRequest {
 
   private int quantity;
 
-  public Order toEntity(Food food) {
-    return Order.builder()
+  public Order toEntityOrder() {
+    return new Order();
+  }
+
+  public OrderFood toEntityOrderFood(Order order, Food food) {
+    return OrderFood.builder()
         .quantity(this.quantity)
+        .order(order)
         .food(food)
         .build();
   }
