@@ -51,6 +51,7 @@ public class OrderService {
       }
 
       OrderFood orderFood = orderDtoRequest.toEntityOrderFood(order, findFood);
+      orderFoodRepository.save(orderFood);
 
       foods.add(FoodResponse.builder()
                 .name(findFood.getName())
@@ -101,6 +102,7 @@ public class OrderService {
     totalPrice += restaurant.getDeliveryFee();
 
     return OrderDtoResponse.builder()
+        .orderId(orderId)
         .restaurantName(restaurant.getName())
         .foods(foods)
         .deliveryFee(restaurant.getDeliveryFee())

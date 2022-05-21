@@ -3,6 +3,7 @@ package com.example.alonedeliveryproject.web.order.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -92,6 +93,14 @@ class OrderControllerTest {
     mvc.perform(post("/orders/" + 1)
         .contentType(MediaType.APPLICATION_JSON)
         .content(new ObjectMapper().writeValueAsString(new OrderFoods(orderDtos))))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void 음식점_주문조회() throws Exception {
+    given(orderService.getOrders(anyLong())).willReturn(orderDtoResponse);
+
+    mvc.perform(get("/orders/" + 1))
         .andExpect(status().isOk());
   }
 }
