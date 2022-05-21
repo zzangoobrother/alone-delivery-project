@@ -1,5 +1,6 @@
 package com.example.alonedeliveryproject.web.order.service;
 
+import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -8,6 +9,9 @@ import static org.mockito.BDDMockito.given;
 
 import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
+import com.example.alonedeliveryproject.domain.order.Order;
+import com.example.alonedeliveryproject.domain.order.OrderFood;
+import com.example.alonedeliveryproject.domain.order.repository.OrderFoodRepository;
 import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
@@ -28,6 +32,9 @@ class OrderServiceTest {
 
   @Mock
   private OrderRepository orderRepository;
+
+  @Mock
+  private OrderFoodRepository orderFoodRepository;
 
   @Mock
   private FoodRepository foodRepository;
@@ -111,5 +118,50 @@ class OrderServiceTest {
     });
 
     assertEquals("해당 음식점의 최소 주문 금액은 " + restaurant.getMinOrderPrice() + "원 입니다.", orderException.getMessage());
+  }
+
+  @Test
+  void 음식점_주문조회() {
+    Order order = new Order(1L);
+    List<OrderFood> orderFoods = new ArrayList<>();
+    orderFoods.add(OrderFood.builder()
+                    .quantity(1)
+                    .order(order)
+                    .food(food)
+                    .build());
+
+    orderFoods.add(OrderFood.builder()
+        .quantity(2)
+        .order(order)
+        .food(food2)
+        .build());
+
+    orderFoods.add(OrderFood.builder()
+        .quantity(3)
+        .order(order)
+        .food(food3)
+        .build());
+
+    given(orderRepository.findById(any())).willReturn(ofNullable(order));
+    given(orderFoodRepository.findAllByOrder(any())).willReturn(orderFoods);
+
+    OrderDtoResponse result = orderService.getOrders(order.getId());
+
+    assertThat(food.getName()).isEqualTo(result.getFoods().get(0).getName());
+    assertThat(food.getPrice()).isEqualTo(result.getFoods().get(0).getPrice());
+
+    assertThat(food2.getName()).isEqualTo(result.getFoods().get(1).getName());
+    assertThat(food2.getPrice()).isEqualTo(result.getFoods().get(1).getPrice());
+
+    assertThat(food3.getName()).isEqualTo(result.getFoods().get(2).getName());
+    assertThat(food3.getPrice()).isEqualTo(result.getFoods().get(2).getPrice());
+
+    assertThat(result.getDeliveryFee()).isEqualTo(restaurant.getDeliveryFee());
+
+    int totalPrice = result.getFoods().get(0).getPrice() * orderDtos.get(0).getQuantity()
+        + result.getFoods().get(1).getPrice() * orderDtos.get(1).getQuantity()
+        + result.getFoods().get(2).getPrice() * orderDtos.get(2).getQuantity()
+        + restaurant.getDeliveryFee();
+    assertThat(result.getTotalPrice()).isEqualTo(totalPrice);
   }
 }

@@ -6,6 +6,7 @@ import com.example.alonedeliveryproject.domain.food.Food;
 import com.example.alonedeliveryproject.domain.food.repository.FoodRepository;
 import com.example.alonedeliveryproject.domain.order.Order;
 import com.example.alonedeliveryproject.domain.order.OrderFood;
+import com.example.alonedeliveryproject.domain.order.repository.OrderFoodRepository;
 import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoRequest;
@@ -24,6 +25,7 @@ public class OrderService {
 
   private final FoodRepository foodRepository;
   private final OrderRepository orderRepository;
+  private final OrderFoodRepository orderFoodRepository;
 
   @Transactional
   public OrderDtoResponse save(long restaurantId, List<OrderDtoRequest> orderFoods) {
@@ -66,6 +68,37 @@ public class OrderService {
     if (totalPrice < restaurant.getMinOrderPrice()) {
       throw new OrderException("해당 음식점의 최소 주문 금액은 " + restaurant.getMinOrderPrice() + "원 입니다.");
     }
+
+    return OrderDtoResponse.builder()
+        .orderId(order.getId())
+        .restaurantName(restaurant.getName())
+        .foods(foods)
+        .deliveryFee(restaurant.getDeliveryFee())
+        .totalPrice(totalPrice)
+        .build();
+  }
+
+  public OrderDtoResponse getOrders(Long orderId) {
+    Order order = orderRepository.findById(orderId).orElseThrow(
+        () -> new OrderException("해당 주문번호를 찾을 수 없습니다.")
+    );
+
+    List<OrderFood> orderFoods = orderFoodRepository.findAllByOrder(order);
+    List<FoodResponse> foods = new ArrayList<>();
+    int totalPrice = 0;
+    for (OrderFood orderFood : orderFoods) {
+      Food food = orderFood.getFood();
+
+      foods.add(FoodResponse.builder()
+          .name(food.getName())
+          .quantity(orderFood.getQuantity())
+          .price(food.getPrice())
+          .build());
+      totalPrice += food.getPrice() * orderFood.getQuantity();
+    }
+
+    Restaurant restaurant = orderFoods.get(0).getFood().getRestaurant();
+    totalPrice += restaurant.getDeliveryFee();
 
     return OrderDtoResponse.builder()
         .restaurantName(restaurant.getName())

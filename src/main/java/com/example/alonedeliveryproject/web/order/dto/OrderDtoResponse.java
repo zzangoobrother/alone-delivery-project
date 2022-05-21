@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OrderDtoResponse {
 
+  private Long orderId;
+
   private String restaurantName;
 
   private List<FoodResponse> foods;
