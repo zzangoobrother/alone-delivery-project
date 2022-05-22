@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
-import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto;
+import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Request;
 import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Response;
 import com.example.alonedeliveryproject.web.restaurant.exception.RestaurantException;
 import java.util.List;
@@ -20,14 +20,9 @@ public class RestaurantService {
   private final RestaurantRepository restaurantRepository;
 
   @Transactional
-  public Restaurant restaurantSave(RestaurantDto.Request request) {
-    if (request.checkMinOrderPriceHundredUnit()) {
-      throw new RestaurantException("주문금액은 100원 단위로 입력가능 합니다.");
-    }
-
-    if (request.checkDeliveryFeeFiveHundredUnit()) {
-      throw new RestaurantException("배달비는 500원 단위로 입력가능 합니다.");
-    }
+  public Restaurant restaurantSave(Request request) {
+    checkMinOrderPriceHundredUnit(request);
+    checkDeliveryFeeFiveHundredUnit(request);
 
     try {
       Restaurant restaurant = request.toEntity();
@@ -35,6 +30,14 @@ public class RestaurantService {
     } catch (DataIntegrityViolationException e) {
       throw new RestaurantException("같은 음식점이 등록되어 있습니다.");
     }
+  }
+
+  private void checkMinOrderPriceHundredUnit(Request request) {
+    if (request.checkMinOrderPriceHundredUnit()) throw new RestaurantException("주문금액은 100원 단위로 입력가능 합니다.");
+  }
+
+  private void checkDeliveryFeeFiveHundredUnit(Request request) {
+    if (request.checkDeliveryFeeFiveHundredUnit()) throw new RestaurantException("배달비는 500원 단위로 입력가능 합니다.");
   }
 
   public List<Response> getRestaurants() {
