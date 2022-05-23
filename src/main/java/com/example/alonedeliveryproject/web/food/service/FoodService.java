@@ -11,11 +11,12 @@ import com.example.alonedeliveryproject.web.food.dto.FoodDto.Response;
 import com.example.alonedeliveryproject.web.food.dto.FoodSaveDtos;
 import com.example.alonedeliveryproject.web.food.exception.FoodException;
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class FoodService {
 
@@ -24,10 +25,7 @@ public class FoodService {
 
   @Transactional
   public Long save(long restaurantId, FoodSaveDtos foodsRequest) {
-    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(
-        () -> new FoodException("음식점을 찾을 수 없습니다.")
-    );
-
+    Restaurant restaurant = getRestaurant(restaurantId);
     List<String> names = foodsRequest.getFoodSaveDtos().stream().map(Request::getName).collect(toList());
 
     if (!foodRepository.findByRestaurantAndNameIn(restaurant, names).isEmpty()) {
@@ -48,13 +46,17 @@ public class FoodService {
   }
 
   public List<Response> getFoods(long restaurantId) {
-    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(
-        () -> new FoodException("음식점을 찾을 수 없습니다.")
-    );
+    Restaurant restaurant = getRestaurant(restaurantId);
 
     List<Food> foods = foodRepository.findByRestaurant(restaurant);
     return foods.stream()
         .map(food -> new Response(food.getId(), food.getName(), food.getPrice()))
         .collect(toList());
+  }
+
+  private Restaurant getRestaurant(long restaurantId) {
+    return restaurantRepository.findById(restaurantId).orElseThrow(
+        () -> new FoodException("음식점을 찾을 수 없습니다.")
+    );
   }
 }

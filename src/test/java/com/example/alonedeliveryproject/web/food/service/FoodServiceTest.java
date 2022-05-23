@@ -79,13 +79,12 @@ class FoodServiceTest {
 
   @Test
   void 음식_1개_등록_정상() {
-    ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
-    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    ArgumentCaptor<Food> captor = givenMock();
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
 
-    foodService.save(1L, new FoodSaveDtos(foodsRequest));
+    foodSave(new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(1)).save(captor.capture());
 
@@ -97,14 +96,13 @@ class FoodServiceTest {
 
   @Test
   void 음식_2개_등록_정상() {
-    ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
-    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    ArgumentCaptor<Food> captor = givenMock();
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
     foodsRequest.add(foodDtoRequest2);
 
-    foodService.save(1L, new FoodSaveDtos(foodsRequest));
+    foodSave(new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(2)).save(captor.capture());
 
@@ -118,15 +116,14 @@ class FoodServiceTest {
 
   @Test
   void 음식_3개_등록_정상() {
-    ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
-    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    ArgumentCaptor<Food> captor = givenMock();
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
     foodsRequest.add(foodDtoRequest2);
     foodsRequest.add(foodDtoRequest3);
 
-    foodService.save(1L, new FoodSaveDtos(foodsRequest));
+    foodSave(new FoodSaveDtos(foodsRequest));
 
     verify(foodRepository, times(3)).save(captor.capture());
 
@@ -140,13 +137,13 @@ class FoodServiceTest {
 
   @Test
   void 음식가격_100원_단위_입력_에러() {
-    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    givenMock();
 
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(Request.builder().name("쉑 버거").price(770).build());
 
     FoodException foodException = assertThrows(FoodException.class, () -> {
-      foodService.save(1L, new FoodSaveDtos(foodsRequest));
+      foodSave(new FoodSaveDtos(foodsRequest));
     });
 
     assertEquals("음식 가격은 100원 단위로 입력가능 합니다.", foodException.getMessage());
@@ -154,7 +151,7 @@ class FoodServiceTest {
 
   @Test
   void 음식점에_등록된_모든_음식_조회_정상() {
-    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    givenMock();
     given(foodRepository.findByRestaurant(restaurant)).willReturn(foods);
 
     List<Response> foodResult = foodService.getFoods(1L);
@@ -163,5 +160,15 @@ class FoodServiceTest {
       assertThat(foodResult.get(i).getName()).isEqualTo(foods.get(i).getName());
       assertThat(foodResult.get(i).getPrice()).isEqualTo(foods.get(i).getPrice());
     }
+  }
+
+  private void foodSave(FoodSaveDtos foodSaveDtos) {
+    foodService.save(1L, foodSaveDtos);
+  }
+
+  private ArgumentCaptor<Food> givenMock() {
+    ArgumentCaptor<Food> captor = ArgumentCaptor.forClass(Food.class);
+    given(restaurantRepository.findById(any())).willReturn(ofNullable(restaurant));
+    return captor;
   }
 }

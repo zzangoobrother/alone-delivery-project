@@ -8,12 +8,13 @@ import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Request
 import com.example.alonedeliveryproject.web.restaurant.dto.RestaurantDto.Response;
 import com.example.alonedeliveryproject.web.restaurant.exception.RestaurantException;
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class RestaurantService {
 

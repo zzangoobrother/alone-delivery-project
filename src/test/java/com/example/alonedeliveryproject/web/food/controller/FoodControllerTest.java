@@ -12,14 +12,17 @@ import com.example.alonedeliveryproject.web.food.dto.FoodDto.Request;
 import com.example.alonedeliveryproject.web.food.dto.FoodDto.Response;
 import com.example.alonedeliveryproject.web.food.dto.FoodSaveDtos;
 import com.example.alonedeliveryproject.web.food.service.FoodService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,6 +30,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 @WebMvcTest(FoodController.class)
+@MockBean(JpaMetamodelMappingContext.class)
 class FoodControllerTest {
 
   @Autowired
@@ -58,28 +62,23 @@ class FoodControllerTest {
     List<Request> foodsRequest = new ArrayList<>();
     foodsRequest.add(foodDtoRequest);
 
-    mvc.perform(post("/restaurant/" + 1 + "/food/register")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(new ObjectMapper().writeValueAsString(new FoodSaveDtos(foodsRequest))))
+    mvc.perform(registerPostMVC(new FoodSaveDtos(foodsRequest)))
         .andExpect(status().isOk());
   }
 
   @Test
   void 최소음식_가격_100원_미만_에러() throws Exception {
-    List<Request> foodsRequest = new ArrayList<>();
-    foodsRequest.add(Request.builder()
-        .name("쉑버거 더블")
-        .price(10900)
-        .build());
+    List<Request> foodsRequest = Arrays.asList(
+        Request.builder()
+            .name("쉑버거 더블")
+            .price(10900)
+            .build(),
+        Request.builder()
+            .name("쉑 치킨 버거")
+            .price(0)
+            .build());
 
-    foodsRequest.add(Request.builder()
-        .name("쉑 치킨 버거")
-        .price(0)
-        .build());
-
-    MockHttpServletRequestBuilder builder = post("/restaurant/" + 1 + "/food/register")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(new ObjectMapper().writeValueAsString(new FoodSaveDtos(foodsRequest)));
+    MockHttpServletRequestBuilder builder = registerPostMVC(new FoodSaveDtos(foodsRequest));
 
     ResultActions resultActions = mvc.perform(builder).andExpect(status().isBadRequest());
     MvcResult mvcResult = resultActions.andReturn();
@@ -89,20 +88,17 @@ class FoodControllerTest {
 
   @Test
   void 초과음식_가격_1000000원_초과_에러() throws Exception {
-    List<Request> foodsRequest = new ArrayList<>();
-    foodsRequest.add(Request.builder()
-        .name("쉑버거 더블")
-        .price(10900)
-        .build());
+    List<Request> foodsRequest = Arrays.asList(
+        Request.builder()
+            .name("쉑버거 더블")
+            .price(10900)
+            .build(),
+        Request.builder()
+            .name("쉑 치킨 버거")
+            .price(1000100)
+            .build());
 
-    foodsRequest.add(Request.builder()
-        .name("쉑 치킨 버거")
-        .price(1000100)
-        .build());
-
-    MockHttpServletRequestBuilder builder = post("/restaurant/" + 1 + "/food/register")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(new ObjectMapper().writeValueAsString(new FoodSaveDtos(foodsRequest)));
+    MockHttpServletRequestBuilder builder = registerPostMVC(new FoodSaveDtos(foodsRequest));
 
     ResultActions resultActions = mvc.perform(builder).andExpect(status().isBadRequest());
     MvcResult mvcResult = resultActions.andReturn();
@@ -117,5 +113,11 @@ class FoodControllerTest {
 
     mvc.perform(get("/restaurant/" + 1 + "/food"))
         .andExpect(status().isOk());
+  }
+
+  private MockHttpServletRequestBuilder registerPostMVC(FoodSaveDtos foodSaveDtos) throws JsonProcessingException {
+    return post("/restaurant/" + 1 + "/food/register")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(new ObjectMapper().writeValueAsString(foodSaveDtos));
   }
 }
