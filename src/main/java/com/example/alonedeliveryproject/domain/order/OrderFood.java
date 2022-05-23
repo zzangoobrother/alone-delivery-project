@@ -39,4 +39,8 @@ public class OrderFood {
     this.order = order;
     this.food = food;
   }
+
+  public int caculationPrice(int price) {
+    return quantity * price;
+  }
 }

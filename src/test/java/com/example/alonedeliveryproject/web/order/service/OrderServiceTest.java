@@ -13,10 +13,10 @@ import com.example.alonedeliveryproject.domain.order.Order;
 import com.example.alonedeliveryproject.domain.order.OrderFood;
 import com.example.alonedeliveryproject.domain.order.repository.OrderFoodRepository;
 import com.example.alonedeliveryproject.domain.order.repository.OrderRepository;
-import com.example.alonedeliveryproject.domain.restaurant.Repository.RestaurantRepository;
 import com.example.alonedeliveryproject.domain.restaurant.Restaurant;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoRequest;
 import com.example.alonedeliveryproject.web.order.dto.OrderDtoResponse;
+import com.example.alonedeliveryproject.web.order.dto.OrderFoods;
 import com.example.alonedeliveryproject.web.order.exception.OrderException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +38,6 @@ class OrderServiceTest {
 
   @Mock
   private FoodRepository foodRepository;
-
-  @Mock
-  private RestaurantRepository restaurantRepository;
 
   @InjectMocks
   private OrderService orderService;
@@ -78,7 +75,7 @@ class OrderServiceTest {
   void 주문하기_정상() {
     given(foodRepository.findAllById(any())).willReturn(foods);
 
-    OrderDtoResponse result = orderService.save(1L, orderDtos);
+    OrderDtoResponse result = orderService.save(1L, new OrderFoods(orderDtos));
     assertThat(restaurant.getName()).isEqualTo(result.getRestaurantName());
 
     assertThat(food.getName()).isEqualTo(result.getFoods().get(0).getName());
@@ -102,19 +99,16 @@ class OrderServiceTest {
   @Test
   void 해당_음식점_최소주문금액_보다_적음_오류() {
     restaurant = new Restaurant(1L, "쉑쉑 강남점", 100_000, 10_000);
-    food = new Food(1L, "쉑버거 더블", 10900, restaurant);
-    food2 = new Food(2L, "쉑 치킨 버거", 9900, restaurant);
-    food3 = new Food(3L, "쉑 비프 버거", 11900, restaurant);
 
     foods = new ArrayList<>();
-    foods.add(food);
-    foods.add(food2);
-    foods.add(food3);
+    foods.add(new Food(1L, "쉑버거 더블", 10900, restaurant));
+    foods.add(new Food(2L, "쉑 치킨 버거", 9900, restaurant));
+    foods.add(new Food(3L, "쉑 비프 버거", 11900, restaurant));
 
     given(foodRepository.findAllById(any())).willReturn(foods);
 
     OrderException orderException = assertThrows(OrderException.class, () -> {
-      orderService.save(1L, orderDtos);
+      orderService.save(1L, new OrderFoods(orderDtos));
     });
 
     assertEquals("해당 음식점의 최소 주문 금액은 " + restaurant.getMinOrderPrice() + "원 입니다.", orderException.getMessage());

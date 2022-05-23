@@ -19,7 +19,7 @@ public class OrderController {
 
   @PostMapping("/orders/{restaurantId}")
   public OrderDtoResponse save(@PathVariable Long restaurantId, @RequestBody @Valid OrderFoods orderFoods) {
-    return orderService.save(restaurantId, orderFoods.getOrderFoods());
+    return orderService.save(restaurantId, orderFoods);
   }
 
   @GetMapping("/orders/{orderId}")

@@ -36,4 +36,8 @@ public class Restaurant {
     this.minOrderPrice = minOrderPrice;
     this.deliveryFee = deliveryFee;
   }
+
+  public boolean checkMinPrice(int inputPrice) {
+    return inputPrice < minOrderPrice;
+  }
 }

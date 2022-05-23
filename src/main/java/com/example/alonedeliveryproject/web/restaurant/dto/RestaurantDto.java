@@ -26,17 +26,11 @@ public class RestaurantDto {
     private int deliveryFee;
 
     public boolean checkMinOrderPriceHundredUnit() {
-      if (this.minOrderPrice % 100 == 0) {
-        return false;
-      }
-      return true;
+      return !(minOrderPrice % 100 == 0);
     }
 
     public boolean checkDeliveryFeeFiveHundredUnit() {
-      if (this.deliveryFee % 500 == 0) {
-        return false;
-      }
-      return true;
+      return !(deliveryFee % 500 == 0);
     }
 
     public Restaurant toEntity() {
