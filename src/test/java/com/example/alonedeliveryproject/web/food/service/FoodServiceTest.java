@@ -18,6 +18,7 @@ import com.example.alonedeliveryproject.web.food.dto.FoodDto.Response;
 import com.example.alonedeliveryproject.web.food.dto.FoodSaveDtos;
 import com.example.alonedeliveryproject.web.food.exception.FoodException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,6 +134,22 @@ class FoodServiceTest {
       assertThat(foodsRequest.get(i).getName()).isEqualTo(saveFoods.get(i).getName());
       assertThat(foodsRequest.get(i).getPrice()).isEqualTo(saveFoods.get(i).getPrice());
     }
+  }
+
+  @Test
+  void 중복_음식_저장_실패() {
+    ArgumentCaptor<Food> captor = givenMock();
+
+    List<Request> foodsRequest = new ArrayList<>();
+    foodsRequest.add(foodDtoRequest);
+
+    given(foodRepository.findByRestaurantAndNameIn(restaurant, Arrays.asList(foodDtoRequest.getName()))).willReturn(Arrays.asList(new Food(1L, "쉑버거 더블", 10900, restaurant)));
+
+    FoodException foodException = assertThrows(FoodException.class, () -> {
+      foodSave(new FoodSaveDtos(foodsRequest));
+    });
+
+    assertEquals("같은 음식점 내에서 중복된 음식을 등록할 수 없습니다.", foodException.getMessage());
   }
 
   @Test
